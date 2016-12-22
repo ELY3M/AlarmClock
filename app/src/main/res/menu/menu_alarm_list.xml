@@ -1,0 +1,11 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <item
+        android:id="@+id/action_add_new_alarm"
+        android:icon="@drawable/add_alarm"
+        android:orderInCategory="0"
+        android:title="Add Alarm"
+        app:showAsAction="always"
+        />
+</menu>

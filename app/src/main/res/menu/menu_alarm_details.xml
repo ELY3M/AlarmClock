@@ -1,0 +1,43 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    tools:context="com.nizhogor.flashalarm.AlarmDetailsActivity">
+
+    <item
+        android:id="@+id/remove_alarm"
+        android:icon="@drawable/remove_alarm"
+        android:orderInCategory="0"
+        android:title="Delete"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/save_alarm"
+        android:icon="@drawable/save_alarm"
+        android:orderInCategory="1"
+        android:title="Save"
+        app:showAsAction="always" />
+    <item
+        android:id="@+id/additional_options"
+        android:orderInCategory="2"
+        android:title="Additional options"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/rate"
+        android:orderInCategory="3"
+        android:title="Give Feedback"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/report"
+        android:orderInCategory="4"
+        android:title="Report a problem"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/about"
+        android:orderInCategory="5"
+        android:title="About"
+        app:showAsAction="never" />
+    <item
+        android:id="@+id/help"
+        android:orderInCategory="6"
+        android:title="Help"
+        app:showAsAction="never" />
+</menu>
