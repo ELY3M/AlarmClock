@@ -37,7 +37,7 @@ public class AlarmModel {
         repeatingDays = new boolean[7];
         name = "";
         alarmTone = "";
-        flash_pattern = "smle";
+        flash_pattern = "5";
         vibrate_pattern = "c";
     }
 
