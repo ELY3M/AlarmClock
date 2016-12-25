@@ -166,6 +166,7 @@ public class AlarmDBHelper extends SQLiteOpenHelper {
         return null;
     }
 
+
     public int deleteAlarm(long id) {
         return getWritableDatabase().delete(Alarm.TABLE_NAME, Alarm._ID + " = ?", new String[]{String.valueOf(id)});
     }

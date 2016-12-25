@@ -21,6 +21,7 @@ import android.os.Bundle;
 import android.support.v4.app.FragmentActivity;
 import android.support.v4.app.FragmentManager;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -48,6 +49,8 @@ import com.doomonafireball.betterpickers.timepicker.TimePickerDialogFragment;
 import java.util.Calendar;
 
 public class AlarmDetailsActivity extends FragmentActivity implements TimePickerDialogFragment.TimePickerDialogHandler {
+
+    public static final String TAG = "flashalarm details";
 
     private static final int singleShotSave = 1;
     private static final int singleShotMenu = 2;
@@ -143,7 +146,7 @@ public class AlarmDetailsActivity extends FragmentActivity implements TimePicker
         } else {
             alarmDetails = dbHelper.getAlarm(ID);
             if (alarmDetails == null) {
-                System.out.println("couldn't retrieve model");
+                Log.i(TAG, "couldn't retrieve model");
             }
             edtName.setText(alarmDetails.name);
             chkWeekly.setChecked(alarmDetails.repeatWeekly);
@@ -578,6 +581,7 @@ public class AlarmDetailsActivity extends FragmentActivity implements TimePicker
             showToast(message);
         }
 
+
         String timeUntilAlarm = AlarmManagerHelper.getTimeUntilAlarm(alarmDetails);
         if (timeUntilAlarm.isEmpty()) {
             message = "No active days are set";
@@ -601,7 +605,7 @@ public class AlarmDetailsActivity extends FragmentActivity implements TimePicker
 
         Toast toast = new Toast(getApplicationContext());
         toast.setGravity(Gravity.BOTTOM, 0, 0);
-        toast.setDuration(Toast.LENGTH_SHORT);
+        toast.setDuration(Toast.LENGTH_LONG);
         toast.setView(layout);
         toast.show();
     }

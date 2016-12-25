@@ -1,8 +1,10 @@
 package com.nizhogor.flashalarm;
 
 import android.app.ActionBar;
+import android.app.AlarmManager;
 import android.app.AlertDialog;
 import android.app.ListActivity;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -13,11 +15,19 @@ import android.graphics.Bitmap;
 import android.graphics.drawable.BitmapDrawable;
 import android.graphics.drawable.Drawable;
 import android.os.Bundle;
+import android.os.Environment;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.util.Log;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.nio.channels.FileChannel;
 
 public class AlarmListActivity extends ListActivity {
 
+    public static final String TAG = "flashalarm list ";
     private AlarmListAdapter mAdapter;
     private AlarmDBHelper dbHelper = new AlarmDBHelper(this);
     private Context mContext;
@@ -50,7 +60,7 @@ public class AlarmListActivity extends ListActivity {
         Drawable dr = getResources().getDrawable(R.drawable.add_alarm);
         Bitmap bitmap = ((BitmapDrawable) dr).getBitmap();
         Drawable d = new BitmapDrawable(getResources(),
-                Bitmap.createScaledBitmap(bitmap, 95, 95, true));
+        Bitmap.createScaledBitmap(bitmap, 95, 95, true));
         add.setIcon(d);
         return super.onPrepareOptionsMenu(menu);
     }
@@ -99,7 +109,7 @@ public class AlarmListActivity extends ListActivity {
         if (resultCode == RESULT_OK) {
             updateAlarmList();
         } else {
-            System.out.println("------>AlarmListActivity startAlarmDetailsActivity() wasn't successful");
+            Log.i(TAG, "------>AlarmListActivity startAlarmDetailsActivity() wasn't successful");
         }
     }
 
@@ -110,9 +120,15 @@ public class AlarmListActivity extends ListActivity {
         if (model != null) {
             model.isEnabled = isEnabled;
             dbHelper.updateAlarm(model);
-            AlarmManagerHelper.setAlarms(this, true);
+            AlarmManagerHelper.setAlarms(this, true); //m0d //was true
+            Log.i(TAG,  "setAlarmEnabled() isEnabled: " + isEnabled);
+
+            //backup sql
+            backupsql();
+
         }
     }
+
 
     public void deleteAlarm(long id) {
         final long alarmId = id;
@@ -135,7 +151,7 @@ public class AlarmListActivity extends ListActivity {
     @Override
     protected  void onStart(){
         super.onStart();
-        System.out.println("--->registered");
+        Log.i(TAG, "--->registered");
         IntentFilter filter = new IntentFilter("android.intent.action.TIME_SET");
         filter.addAction("com.nizhogor.action.REFRESH_ALARMS_DISPLAY");
         registerReceiver(mMessageReceiver, filter);
@@ -145,6 +161,35 @@ public class AlarmListActivity extends ListActivity {
     protected  void onDestroy(){
         super.onDestroy();
         unregisterReceiver(mMessageReceiver);
+    }
+
+
+    void backupsql() {
+
+        try {
+            Log.i(TAG,  "backupsql() started");
+            File sd = Environment.getExternalStorageDirectory();
+            File data = Environment.getDataDirectory();
+
+            if (sd.canWrite()) {
+                String currentDBPath = "//data//com.nizhogor.flashalarm//databases//alarmclock.db";
+                String backupDBPath = "alarmclock.db";
+                File currentDB = new File(data, currentDBPath);
+                File backupDB = new File(sd, backupDBPath);
+
+                if (currentDB.exists()) {
+                    FileChannel src = new FileInputStream(currentDB).getChannel();
+                    FileChannel dst = new FileOutputStream(backupDB).getChannel();
+                    dst.transferFrom(src, 0, src.size());
+                    src.close();
+                    dst.close();
+                    Log.i(TAG,  "backupsql() ran ok");
+                }
+            }
+        } catch (Exception e) {
+            Log.i(TAG,  "backupsql() failed... " + e);
+        }
+
     }
 
 

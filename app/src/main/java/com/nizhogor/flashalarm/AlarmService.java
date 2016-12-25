@@ -3,10 +3,11 @@ package com.nizhogor.flashalarm;
 import android.app.Service;
 import android.content.Intent;
 import android.os.IBinder;
+import android.util.Log;
 
 public class AlarmService extends Service {
 
-    public static String TAG = AlarmService.class.getSimpleName();
+    public static String TAG = "flashalarm: Service";
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -27,9 +28,10 @@ public class AlarmService extends Service {
                 getApplication().startActivity(alarmIntent);
             }
             AlarmManagerHelper.setAlarms(this, false);
+            Log.i(TAG, "AlarmService.....");
 
         } else
-            System.out.println("----->Intent is null");
+            Log.i(TAG, "----->Intent is null");
 
         return super.onStartCommand(intent, flags, startId);
     }

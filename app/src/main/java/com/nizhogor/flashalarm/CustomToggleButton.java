@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.View;
 import android.view.ViewGroup;
@@ -22,6 +23,8 @@ public class CustomToggleButton extends FrameLayout {
     public static int buttonId = 1;
     public static int labelId=100;
     */
+
+    public static final String TAG = "flashalarm : ";
     private TypedArray a;
     private TextView label;
     private CompoundButton button;

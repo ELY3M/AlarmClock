@@ -5,6 +5,7 @@ import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PorterDuff;
 import android.text.format.DateFormat;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -21,6 +22,8 @@ import android.widget.ToggleButton;
 import java.util.List;
 
 public class AlarmListAdapter extends BaseAdapter {
+
+    public static final String TAG = "flashalarm : ";
 
     private Context mContext;
     private List<AlarmModel> mAlarms;
@@ -143,6 +146,7 @@ public class AlarmListAdapter extends BaseAdapter {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 ((AlarmListActivity) mContext).setAlarmEnabled(((Long) buttonView.getTag()).longValue(), isChecked);
+                Log.i(TAG, "setAlarmEnabled toggle. ischecked: " + isChecked + " ");
             }
         });
 

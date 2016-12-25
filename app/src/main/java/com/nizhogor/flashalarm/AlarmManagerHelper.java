@@ -6,11 +6,16 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.util.Log;
+import android.widget.Toast;
+
 
 import java.util.Calendar;
 import java.util.List;
 
 public class AlarmManagerHelper extends BroadcastReceiver {
+
+    public static final String TAG = "flashalarm AlarmManager";
 
     public static final String ID = "id";
     public static final String NAME = "name";
@@ -45,6 +50,7 @@ public class AlarmManagerHelper extends BroadcastReceiver {
             for (AlarmModel alarm : alarms) {
                 if (alarm.isEnabled) {
 
+                    Log.i(TAG, "alarm.isEnabled");
                     Calendar calendar = Calendar.getInstance();
                     calendar.set(Calendar.HOUR_OF_DAY, alarm.timeHour);
                     calendar.set(Calendar.MINUTE, alarm.timeMinute);
@@ -64,12 +70,14 @@ public class AlarmManagerHelper extends BroadcastReceiver {
                             calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
 
                             alarmSet = true;
+                            Log.i(TAG, "alarmset = true");
                             break;
                         }
                     }
 
                     //Else check if it's earlier in the week
                     if (!alarmSet) {
+                        Log.i(TAG, "!alarmSet");
                         for (int dayOfWeek = Calendar.SUNDAY; dayOfWeek <= Calendar.SATURDAY; ++dayOfWeek) {
                             if (alarm.getRepeatingDay(dayOfWeek - 1) && dayOfWeek <= nowDay && (ignoreWeekly || alarm.repeatWeekly)) {
                                 calendar.set(Calendar.DAY_OF_WEEK, dayOfWeek);
@@ -77,17 +85,22 @@ public class AlarmManagerHelper extends BroadcastReceiver {
 
 
                                 alarmSet = true;
+                                Log.i(TAG, "alarmset = true");
                                 break;
                             }
                         }
                     }
 
                     if (alarmSet) {
+                        Log.i(TAG, "alarmSet");
                         PendingIntent pIntent = createPendingIntent(context, alarm, calendar.getTimeInMillis());
-                        setAlarm(context, calendar, pIntent);
+                        setAlarm(context, calendar, alarm, pIntent);
+                        Log.i(TAG, "setAlarm() called.");
                     } else {
+                        Log.i(TAG, "!alarmSet - disabled...");
                         // once no days are active for current alarm, disable it
                         alarm.isEnabled = false;
+                        Log.i(TAG, "alarm is disabled");
                         dbHelper.updateAlarm(alarm);
                         Intent updateIntent = new Intent("com.nizhogor.action.REFRESH_ALARMS_DISPLAY");
                         context.sendBroadcast(updateIntent);
@@ -99,33 +112,35 @@ public class AlarmManagerHelper extends BroadcastReceiver {
     }
 
     @SuppressLint("NewApi")
-    private static void setAlarm(Context context, Calendar calendar, PendingIntent pIntent) {
-        AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
-        if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
-            alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
-        } else {
-            alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
-        }
+    private static void setAlarm(Context context, Calendar calendar, AlarmModel alarm, PendingIntent pIntent) {
+            Log.i(TAG, "RTC WAKE UP.........................");
+            AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.KITKAT) {
+                alarmManager.setExact(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+            } else {
+                alarmManager.set(AlarmManager.RTC_WAKEUP, calendar.getTimeInMillis(), pIntent);
+            }
+
+        Toast.makeText(context, getTimeUntilAlarm(alarm), Toast.LENGTH_LONG).show();
+
     }
 
     public static void cancelAlarms(Context context) {
         AlarmDBHelper dbHelper = new AlarmDBHelper(context);
-
         List<AlarmModel> alarms = dbHelper.getAlarms();
-
         if (alarms != null) {
             for (AlarmModel alarm : alarms) {
-                if (alarm.isEnabled) {
+                    Log.i(TAG,  "[AlarmManager] Trying to disable alarm set for " + alarm.timeHour +":"+alarm.timeMinute + " : "  + alarm.isEnabled);
                     PendingIntent pIntent = createPendingIntent(context, alarm, 0);
-
                     AlarmManager alarmManager = (AlarmManager) context.getSystemService(Context.ALARM_SERVICE);
                     alarmManager.cancel(pIntent);
-                }
             }
+
         }
     }
 
     private static PendingIntent createPendingIntent(Context context, AlarmModel model, long alarmTimeMillis) {
+        Log.i(TAG, "createPendingIntent() ran");
         Intent intent = new Intent(context, AlarmService.class);
         intent.putExtra(ID, model.id);
         intent.putExtra(NAME, model.name);
@@ -140,9 +155,11 @@ public class AlarmManagerHelper extends BroadcastReceiver {
         intent.putExtra(VIBRATE_PATTERN, model.vibrate_pattern);
         // used to prevent existing alarm being triggered, when time is moved forward
         intent.putExtra(ALARM_TIMESTAMP_MILLIS, alarmTimeMillis);
-
         return PendingIntent.getService(context, (int) model.id, intent, PendingIntent.FLAG_UPDATE_CURRENT);
     }
+
+
+
 
     public static String getTimeUntilAlarm(AlarmModel alarm) {
         Calendar calendar = Calendar.getInstance();
@@ -180,7 +197,7 @@ public class AlarmManagerHelper extends BroadcastReceiver {
         }
 
         if (!alarmSet) {
-            return "";
+            return "Alarm is off";
         }
 
         long difference = calendar.getTimeInMillis() - System.currentTimeMillis();
@@ -249,4 +266,9 @@ public class AlarmManagerHelper extends BroadcastReceiver {
         alert += " from now";
         return alert;
     }
+
+
+
+
+
 }
